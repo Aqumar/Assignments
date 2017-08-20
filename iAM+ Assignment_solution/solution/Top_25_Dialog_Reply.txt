@@ -1,0 +1,28 @@
+Dialog        Reply     
+-----------------------------------------------         
+Ah            No                      
+All right     Well                    
+Come on       Hey                     
+Hello         Hello                  
+Hey           Hey                    
+Hi            Hi                     
+I don't know  Well                    
+I know        It's not your fault     
+I'm sorry     No                      
+Listen        Yeah                    
+Look          No                     
+No            Well                   
+Now           No                      
+Oh            Oh                     
+Okay          Okay                   
+So            Well                   
+Sure          Well                    
+Thank you     Oh                      
+Uh            Yeah                    
+Well          Well                   
+What?         Nothing                 
+Why?          Well                    
+Yeah          Well                   
+Yes           Well                   
+You know      Yeah                   
+Name: count, dtype: int64

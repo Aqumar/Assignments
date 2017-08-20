@@ -1,0 +1,84 @@
+import pandas as pd
+import numpy as np
+
+movie_lines = open('movie_lines.txt','r').read()
+
+movie_lines = movie_lines.replace('+++$+++', ',')
+
+movie_lines = movie_lines.splitlines()
+
+movie_lines = pd.DataFrame(movie_lines,columns=['lineID,characterID,movieID,character name,text of the utterance'])
+
+movie_lines = movie_lines['lineID,characterID,movieID,character name,text of the utterance'].apply(lambda x: pd.Series(x.split(',')))
+
+movie_lines = movie_lines.loc[:,[0,1,2,3,4]]
+
+movie_lines.columns = ['lineID','characterID','movieID','character_name','text']
+
+movie_lines['lineID'] = movie_lines['lineID'].map(lambda x: x.strip())
+
+movie_lines['characterID'] = movie_lines['characterID'].map(lambda x: x.strip())
+
+movie_lines['movieID'] = movie_lines['movieID'].map(lambda x: x.strip())
+
+movie_lines['character_name'] = movie_lines['character_name'].map(lambda x: x.strip())
+
+movie_lines['text'] = movie_lines['text'].map(lambda x: x.strip())
+
+
+
+
+from ast import literal_eval
+
+movie_conversations = open('movie_conversations.txt','r').read()
+
+movie_conversations = movie_conversations.splitlines()
+
+df_final = pd.DataFrame()
+
+for i in range(0,len(movie_conversations)):
+    
+    
+    m_id = lst = movie_conversations[i].strip().split('+++$+++')[2].strip()
+
+    lst = literal_eval(movie_conversations[i].strip().split('+++$+++')[3].strip())
+    
+    df = pd.DataFrame()
+    
+    for value in lst:
+        df = df.append(movie_lines[(movie_lines['lineID'] == value) & (movie_lines['movieID'] == m_id)])
+        
+    df.reset_index(inplace = True)
+
+    df['DR'] = np.where(df.index % 2 == 0, 'Dialog','Reply')
+    
+    df_final = df_final.append(df)
+    
+
+
+df_final.to_csv('results.csv', index=False,encoding='utf-8')
+
+res = pd.read_csv('results.csv')
+
+res['text'].fillna('No values',inplace = True)
+
+res['text'] = res['text'].apply(lambda x: x.replace('.',""))
+
+top_25_dialog = res[res['DR'] == 'Dialog']['text'].value_counts().sort_values(ascending=False).head(25)
+
+new_df = pd.DataFrame()
+for i in range(0,25):
+    dialog = top_25_dialog.index[i]
+    for j in range(0,len(res)):
+        if res['text'][j] == dialog and res['DR'][j] == 'Dialog': 
+            if res['DR'][j+1] == 'Reply':
+                reply = res['text'][j+1]
+                new_df = new_df.append({'Dialog': dialog, 'Reply': reply}, ignore_index=True)
+    
+indexed_df = pd.DataFrame(new_df.groupby(['Dialog','Reply']).size())
+
+indexed_df.columns = ['count']
+
+g = indexed_df['count'].groupby(level=0, group_keys=False)
+
+top_25_dialog_reply = g.nlargest(1)

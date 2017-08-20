@@ -1,0 +1,26 @@
+Well            2531
+No              2088
+Oh              1987
+Yeah            1513
+Yes             1306
+Hey              837
+What?            736
+Okay             611
+Look             464
+So               351
+You know         350
+Hello            340
+Hi               295
+Come on          283
+I'm sorry        274
+Why?             257
+All right        255
+I don't know     251
+Thank you        247
+Listen           215
+Now              206
+I know           188
+Sure             187
+Uh               183
+Ah               168
+Name: text, dtype: int64
