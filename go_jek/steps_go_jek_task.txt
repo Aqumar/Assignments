@@ -1,0 +1,13 @@
+1) Installing the PostgreSQL and creating the database along with required tables.
+
+2) Downloading the file in R, performing the data cleaning.
+
+3) Data understanding.
+
+4) Performing analytics operation to give some meaningful insights from the data.
+
+5) Plotting the charts for better interpretation of results.
+
+6) Heading the conclusion on the data.
+
+

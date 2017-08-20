@@ -1,0 +1,2 @@
+"C:\Program Files\R\R-3.3.2\bin\x64\Rcmd.exe" BATCH "C:\Users\AQMAR\Desktop\go_gej_task.R"
+

@@ -1,0 +1,14 @@
+1) Providers "BobTheBuilder" and "LalaLand" fail to generate a substantial revenue from the advertising as a result they
+   incured huge loss since their cost of advertising exceeds revenue generated on the period from 01/10/2015 to 12/10/2015.
+
+2) Providers "Olidayylnn" and "TravelGuys" have geneated profit as their advertising 
+   revenue was higher than their cost of investment on the period from 01/10/2015 to 12/10/2015.
+   Particularly, providers "Travels guys" have generated ample amount of profit.
+
+3) Even though the total clicks for all the 4 providers are not significantly different, there was relavtively high difference for the 
+   conversion between the group which is generating the profit and other which failed to generate the profit.Even though, "Olidayylnn" have fewer number of clicks 
+   compared to "BobTheBuilder" and "LalaLand","Olidayylnn has generated more conversions than "BobTheBuilder" and "LalaLand".
+
+4) "BobTheBuilder" and "LalaLand" might have to improve the landing page which may increase the number of conversions.There can be the multiple reasons which are best 
+   described by the google analytics, some of them are may be prices too high or offer isn't compelling or not targeting the correct audience.
+

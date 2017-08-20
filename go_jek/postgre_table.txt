@@ -1,0 +1,24 @@
+##Steps to Create postgres database
+
+1) Install the postgreSQL.
+
+2) Sign in to dababase
+
+3) create a database click_conversions
+
+4) Create table clicks and conversions as below
+
+CREATE TABLE clicks(
+	ds date,
+	provider varchar (50) ,
+	cpc int
+	);
+
+CREATE TABLE conversions(
+	ds date,
+	provider varchar (50) ,
+	gbv int
+	);
+
+5) Give the permissions to table equal to the owner.
+

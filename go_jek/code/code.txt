@@ -1,0 +1,185 @@
+options(warn=-1)
+
+
+library(ggplot2)
+
+setwd('C:/Users/AQMAR/Downloads')
+
+clicks <- read.csv('clicks.csv')
+
+conversions <- read.csv('conversions.csv')
+
+
+###########Data cleaning for clicks####################
+
+data <- NULL
+
+for(i in 1:nrow(clicks))
+{
+  temp <- unlist(strsplit(as.character(clicks[i,]), '\t', fixed = TRUE))
+  data <- rbind(data,cbind(temp[1],temp[2],temp[3]))
+}
+data <- as.data.frame(data)
+names(data) <- c('ds','provider','cpc')
+
+data$cpc <- as.numeric(as.character(data$cpc))
+
+data$ds <- as.Date(as.character(data$ds))
+
+data_click <- data[complete.cases(data),]
+
+###########Data cleaning for conversions####################
+
+
+data <- NULL
+
+for(i in 1:nrow(conversions))
+{
+  temp <- unlist(strsplit(as.character(conversions[i,]), '\t', fixed = TRUE))
+  data <- rbind(data,cbind(temp[1],temp[2],temp[3]))
+}
+data <- as.data.frame(data)
+names(data) <- c('ds','provider','gbv')
+
+data$gbv <- as.numeric(as.character(data$gbv))
+
+data$ds <- as.Date(as.character(data$ds))
+
+data_conversion <- data[complete.cases(data),]
+
+
+##########Connecting with database##########
+
+require("RPostgreSQL")
+require('data.table')
+# create a connection
+# save the password that we can "hide" it as best as we can by collapsing it
+pw <- {
+  '1234'
+}
+
+# loads the PostgreSQL driver
+drv <- dbDriver("PostgreSQL")
+# creates a connection to the postgres database
+
+
+# note that "con" will be used later in each connection to the database
+con <- dbConnect(drv, dbname = "clicks_conversion",
+                 host = "localhost", port = 5432,
+                 user = "aqmar", password = '1234')
+
+#########One time process for writing to the table#########
+
+#dbWriteTable(con, "clicks", 
+#             value = data_click, append = TRUE, row.names = FALSE)
+
+#dbWriteTable(con, "conversions", 
+#             value = data_conversion, append = TRUE, row.names = FALSE)
+
+
+###############Quering from the database##############
+
+df_clicks <- dbGetQuery(con, "SELECT * from clicks")
+
+df_conversions <- dbGetQuery(con, "SELECT * from conversions")
+
+
+##########Insights from the data##############
+
+clicks_aggr_mean <- setDT(df_clicks)[,lapply(.SD,mean),by = c('ds','provider')]
+
+clicks_aggr_total <- setDT(df_clicks)[,.N,by = c('ds','provider')]
+
+clicks_aggr <- merge(clicks_aggr_mean,clicks_aggr_total,by = c('ds','provider'))
+
+names(clicks_aggr) <- c('ds','provider','mean_cpc','total_clicks')
+
+png(filename="C:/Users/AQMAR/Desktop/plots/mean_cpc_by_providers_by_date.png")
+
+ggplot(data = clicks_aggr, aes(x = factor(ds), y = mean_cpc,group = provider,colour = provider)) +       
+  geom_line() + geom_point()
+
+dev.off()
+
+png(filename="C:/Users/AQMAR/Desktop/plots/numer_of_clicks_by_providers_by_date.png")
+
+ggplot(data = clicks_aggr, aes(x = factor(ds), y = total_clicks,group = provider,colour = provider)) +       
+  geom_line() + geom_point()
+
+dev.off()
+
+
+conversions_aggr_sum <- setDT(df_conversions)[,lapply(.SD,sum),by = c('ds','provider')]
+
+conversions_aggr_total <- setDT(df_conversions)[,.N,by = c('ds','provider')]
+
+conversions_aggr <- merge(conversions_aggr_sum,conversions_aggr_total,by = c('ds','provider'))
+
+names(conversions_aggr) <- c('ds','provider','sum_gbv','total_conversions')
+
+png(filename="C:/Users/AQMAR/Desktop/plots/total_revenue_by_providers_by_date.png")
+
+ggplot(data = conversions_aggr, aes(x = factor(ds), y = sum_gbv,group = provider,colour = provider)) +       
+  geom_line() + geom_point()
+
+dev.off()
+
+png(filename="C:/Users/AQMAR/Desktop/plots/number_of_conversions_by_providers_by_date.png")
+
+ggplot(data = conversions_aggr, aes(x = factor(ds), y = total_conversions,group = provider,colour = provider)) +       
+  geom_line() + geom_point()
+
+dev.off()
+
+
+clicks_aggr_sum <- setDT(df_clicks)[,lapply(.SD,sum),by = c('ds','provider')]
+
+clicks_aggr_total <- setDT(df_clicks)[,.N,by = c('ds','provider')]
+
+clicks_summarize <- merge(clicks_aggr_sum,clicks_aggr_total,by = c('ds','provider'))
+
+names(clicks_summarize) <- c('ds','provider','sum_cpc','total_clicks')
+
+png(filename="C:/Users/AQMAR/Desktop/plots/total_cpc_by_providers_by_date.png")
+
+ggplot(data = clicks_summarize, aes(x = factor(ds), y = sum_cpc,group = provider,colour = provider)) +       
+  geom_line() + geom_point()
+
+dev.off()
+
+
+######Analyze profitability of each provider#####
+click_cost <- clicks_summarize[,lapply(.SD,sum),by = 'provider',.SDcols = 'sum_cpc']
+
+conversion_revenue <- conversions_aggr[,lapply(.SD,sum),by = 'provider',.SDcols = 'sum_gbv']
+
+providers_cost_revenue <- merge(click_cost,conversion_revenue,by = 'provider')
+
+providers_cost_revenue$diff <- providers_cost_revenue$sum_gbv - providers_cost_revenue$sum_cpc
+
+names(providers_cost_revenue) <- c("provider","cost","revenue","diff")
+
+library(lattice)
+
+png(filename="C:/Users/AQMAR/Desktop/plots/cost_revenue_by_providers.png")
+barchart(cost+revenue ~ provider,
+         data=providers_cost_revenue,
+         auto.key = list(space='right')
+         )
+dev.off()
+
+
+
+
+##############Total clicks and conversions by provider########
+
+total_clicks <- clicks_aggr[,lapply(.SD,sum),by = 'provider',.SDcols = 'total_clicks']
+  
+total_conversions <- conversions_aggr[,lapply(.SD,sum),by = 'provider',.SDcols = 'total_conversions']
+
+comapre_click_conversion <- merge(total_clicks,total_conversions,by = 'provider')
+
+write.csv(comapre_click_conversion,"C:/Users/AQMAR/Desktop/plots/compare_click_conversion_by_provider.csv",sep = ',',row.names = F)
+
+
+
