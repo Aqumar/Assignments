@@ -1,0 +1,7 @@
+=INDEX(Sheet1!$D$2:$D$121,MATCH(weighted_model_DBS!A102,Sheet1!$A$2:$A$120))
+
+=INDEX(Sheet1!$D$2:$D$120,MATCH(weighted_model_DBS!A2,Sheet1!$A$2:$A$120))
+
+
+
+=INDEX(Sheet1!$D$2:$D$120,MATCH(Probablistical_model_DBS!A2,Sheet1!$A$2:$A$120))
